@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   Text,
@@ -11,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   getAuth,
@@ -21,21 +20,62 @@ import {
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
 
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, StackActions } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-const uri = "https://ak.picdn.net/shutterstock/videos/1060308725/thumb/1.jpg";
-const profilePicture = "https://randomuser.me/api/portraits/men/34.jpg";
+import { useNavigation } from "@react-navigation/native";
+
+const uri =
+  "https://i.pinimg.com/736x/77/21/13/772113999822e4dbfdad4a5c14872bea.jpg";
+const profilePicture =
+  "https://i.pinimg.com/originals/aa/34/25/aa3425efc1474708272ecdbb67060856.png";
 
 function HomeScreen() {
+  const [text, setText] = useState("");
+
+  const navigation = useNavigation();
+
+  const handleLogOut = () => {
+    // auth()
+    //   .signOut()
+    //   .then(() => console.log("Se ha cerrado sesión"));
+    console.log("Se ha cerrado sesión!");
+    navigation.navigate("Login");
+  };
+
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Home Screen</Text>
+    <View style={{ padding: 10, flex: 1 }}>
+      <TextInput
+        style={{ height: 40, paddingHorizontal: 10 }}
+        placeholder="escribe para traducir :p"
+        onChangeText={(newText) => setText(newText)}
+        defaultValue={text}
+      />
+      <Text style={{ padding: 10, fontSize: 42 }}>
+        {text
+          .split(" ")
+          .map((word) => word && "✨")
+          .join(" ")}
+      </Text>
+      <TouchableOpacity
+        onPress={handleLogOut}
+        style={[
+          styles.button,
+          { backgroundColor: "#C62F3A", alignSelf: "center" },
+        ]}
+      >
+        <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
+          Cerrar Sesión
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 function LoginScreen() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+
+  const navigation = useNavigation();
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -58,6 +98,7 @@ function LoginScreen() {
         console.log("Se ha iniciado sesión");
         const user = userCredential.user;
         console.log(user);
+        navigation.navigate("Pizza");
       })
       .catch((error) => {
         console.log(error);
@@ -79,7 +120,10 @@ function LoginScreen() {
       >
         <BlurView intensity={90}>
           <View style={styles.login}>
-            <Image source={{ profilePicture }} style={styles.profilePicture} />
+            <Image
+              source={{ uri: profilePicture }}
+              style={styles.profilePicture}
+            />
             <View>
               <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
                 E-mail
@@ -106,7 +150,7 @@ function LoginScreen() {
               style={[styles.button, { backgroundColor: "#00CFEB90" }]}
             >
               <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
-                Login
+                Iniciar Sesión
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -114,7 +158,7 @@ function LoginScreen() {
               style={[styles.button, { backgroundColor: "#6792F090" }]}
             >
               <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
-                Create Account
+                Crear Cuenta
               </Text>
             </TouchableOpacity>
           </View>
@@ -124,8 +168,25 @@ function LoginScreen() {
   );
 }
 
+const Stack = createNativeStackNavigator();
+
 export default function App() {
-  return <LoginScreen />;
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Pizza"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({
