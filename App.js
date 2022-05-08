@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   TextInput,
   Button,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
+import React, { useEffect } from "react";
 
 import {
   getAuth,
@@ -18,6 +20,8 @@ import {
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
+
+import { NavigationContainer } from "@react-navigation/native";
 
 const uri = "https://ak.picdn.net/shutterstock/videos/1060308725/thumb/1.jpg";
 const profilePicture = "https://randomuser.me/api/portraits/men/34.jpg";
@@ -30,6 +34,37 @@ function HomeScreen() {
   );
 }
 function LoginScreen() {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const handleCreateAccount = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("Cuenta creada!");
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handleSignIn = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        console.log("Se ha iniciado sesión");
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert(error.message);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <Image source={{ uri }} style={[styles.image, StyleSheet.absoluteFill]} />
@@ -50,6 +85,7 @@ function LoginScreen() {
                 E-mail
               </Text>
               <TextInput
+                onChangeText={(text) => setEmail(text)}
                 style={styles.input}
                 placeholder="motomami@hotmail.com"
               />
@@ -59,12 +95,14 @@ function LoginScreen() {
                 Contraseña
               </Text>
               <TextInput
+                onChangeText={(text) => setPassword(text)}
                 style={styles.input}
                 placeholder="contraseña"
                 secureTextEntry={true}
               />
             </View>
             <TouchableOpacity
+              onPress={handleSignIn}
               style={[styles.button, { backgroundColor: "#00CFEB90" }]}
             >
               <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
@@ -72,6 +110,7 @@ function LoginScreen() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={handleCreateAccount}
               style={[styles.button, { backgroundColor: "#6792F090" }]}
             >
               <Text style={{ fontSize: 17, fontWeight: "400", color: "white" }}>
