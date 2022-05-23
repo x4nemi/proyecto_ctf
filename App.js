@@ -84,11 +84,13 @@ function LoginScreen() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log("Cuenta creada!");
+        alert("Cuenta creada");
         const user = userCredential.user;
         console.log(user);
       })
       .catch((error) => {
         console.log(error);
+        alert(error.message);
       });
   };
 
@@ -99,10 +101,11 @@ function LoginScreen() {
         const user = userCredential.user;
         console.log(user);
         navigation.navigate("Pizza");
+        alert("Se ha iniciado sesión");
       })
       .catch((error) => {
         console.log(error);
-        Alert.alert(error.message);
+        alert(error.message);
       });
   };
 
